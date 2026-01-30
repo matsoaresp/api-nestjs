@@ -32,7 +32,7 @@ export class Service {
     @JoinColumn({name: 'agendado'})
     agendado: Client;
 
-    @ManyToOne(() => Client)
+    @ManyToOne(() => Client ,{ nullable: true })
     @JoinColumn({name: 'cancelado'})
     cancelado: Client;
 
