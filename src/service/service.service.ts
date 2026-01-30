@@ -66,16 +66,18 @@ export class ServiceService {
   }
 
   
-  async update(id: number, updateServiceDto: UpdateServiceDto) {
+  async update(id: number, updateServiceDto: UpdateServiceDto){
 
-    const service = await this.findOne(id)
+    const service = await this.findOne(id);
+    service.status = updateServiceDto.action ?? service.status;
 
-    if (service.status = updateServiceDto?.action ?? AppointmentStatus.CANCELAR) {
-        service.status = AppointmentStatus.ABERTO;
+    if (service.status === AppointmentStatus.CANCELAR) {
+        service.cancelado = {
+          id: updateServiceDto.canceladoId,
+        } as any;
     }else {
       service.status = AppointmentStatus.CANCELAR;
     }
-
     await this.serviceRepository.save(service)
     return service
   }

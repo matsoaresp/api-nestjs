@@ -22,4 +22,7 @@ export class CreateServiceDto {
 
     @IsEnum(AppointmentStatus)
     action: AppointmentStatus;
+
+    @IsNumber()
+    canceladoId?: number;
 }
