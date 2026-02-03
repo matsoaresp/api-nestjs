@@ -1,25 +1,33 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Client } from './entities/client.entity';
 import { Repository } from 'typeorm';
+import { HashingService } from 'src/auth/hashing/hashing.service';
+import { TokenPayloadDto } from 'src/auth/dto/token-payload.dto';
 
 @Injectable()
 export class ClientService {
 
   constructor (
     @InjectRepository(Client)
-    private readonly clientRepository: Repository<Client>
+    private readonly clientRepository: Repository<Client>,
+    private readonly hashingService: HashingService
   ) {
 
   }
   
   async create(createClientDto: CreateClientDto) {
+
+    const passwordHash = await this.hashingService.hash(
+      createClientDto.password,
+    );
+
     const clientData = {
       name: createClientDto.name,
       email: createClientDto.email,
-      password: createClientDto.password,
+      password: passwordHash,
     }
 
     const newClient = await this.clientRepository.create(clientData)
@@ -48,17 +56,35 @@ export class ClientService {
     return client
   }
 
-  async update(id: number, updateClientDto: UpdateClientDto) {
+  async update(id: number,
+     updateClientDto: UpdateClientDto,
+     tokenPayload: TokenPayloadDto
+    ) {
+
+    const dadosClient = {
+      name: updateClientDto?.name,
+    }
+
+    if (updateClientDto?.password){
+      const passwordHash = await this.hashingService.hash(
+        updateClientDto.password
+      );
+
+      dadosClient['passwordHash'] = passwordHash
+    }
 
     const client = await this.clientRepository.preload({
       id,
       name: updateClientDto?.name,
       email: updateClientDto?.email,
-      password: updateClientDto?.password
     })
 
     if (!client)
       throw new NotFoundException('Client não encontrado')
+
+    if (client.id !== tokenPayload.sub){
+      throw new ForbiddenException('Você não é essa pessoa')
+    }
     
     return this.clientRepository.save(client)
   }
