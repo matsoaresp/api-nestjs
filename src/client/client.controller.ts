@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus
 import { ClientService } from './client.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
+import { TokenPayloadDto } from 'src/auth/dto/token-payload.dto';
 
 @Controller('client')
 export class ClientController {
@@ -9,7 +10,8 @@ export class ClientController {
 
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  create(@Body() createClientDto: CreateClientDto) {
+  create(
+    @Body() createClientDto: CreateClientDto) {
     return this.clientService.create(createClientDto);
   }
 
@@ -21,20 +23,25 @@ export class ClientController {
 
   @HttpCode(HttpStatus.OK)
   @Get(':id')
-  findOne(@Param('id') id: number) {
+  findOne(
+    @Param('id') id: number) {
     return this.clientService.findOne(id);
   }
 
   @HttpCode(HttpStatus.OK)
   @Patch(':id')
-  update(@Param('id') id: number, @Body() updateClientDto: UpdateClientDto) {
-    return this.clientService.update(id, updateClientDto);
+  update(
+    @Param('id') id: number,
+    @Body() updateClientDto: UpdateClientDto, 
+    tokenPayload:TokenPayloadDto) {
+    return this.clientService.update(id, updateClientDto, tokenPayload);
   }
 
 
   @HttpCode(HttpStatus.OK)
   @Delete(':id')
-  remove(@Param('id') id: number) {
+  remove(
+    @Param('id') id: number) {
     return this.clientService.remove(id);
   }
 }
