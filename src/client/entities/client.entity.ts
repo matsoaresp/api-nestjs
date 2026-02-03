@@ -4,13 +4,16 @@ import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateCol
 export class Client {
 
     @PrimaryGeneratedColumn()
-    id: number
+    id: number;
 
     @Column()
-    name: string
+    name: string;
 
     @Column() 
-    email: string
+    email: string;
+
+    @Column()
+    password:string;
 
     @CreateDateColumn()
     createdAt?: Date;

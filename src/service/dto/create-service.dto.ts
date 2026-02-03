@@ -11,11 +11,6 @@ export class CreateServiceDto {
     @IsNumber()
     price: number;
 
-    @IsNotEmpty()
-    startTime: Date;
-
-    @IsNotEmpty()
-    endTime: Date;
 
     @IsNotEmpty()
     clientId: number
