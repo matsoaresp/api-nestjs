@@ -22,11 +22,15 @@ export class ServiceService {
     createServiceDto.clientId
   );
 
+  const startTime = new Date();
+  const endTime = new Date(startTime.getTime() + 60 * 60 * 1000);
+
+
   const service = this.serviceRepository.create({
     name: createServiceDto.nameService,
     price: createServiceDto.price,
-    starTime: createServiceDto.startTime,
-    endTime: createServiceDto.endTime,
+    startTime,
+    endTime,
     status: createServiceDto.action ?? AppointmentStatus.AGENDAR,
     agendado: client,
   });
