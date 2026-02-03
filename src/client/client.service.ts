@@ -89,13 +89,21 @@ export class ClientService {
     return this.clientRepository.save(client)
   }
 
-  async remove(id: number) {
+  async remove(
+    id: number,
+    tokenPayload: TokenPayloadDto
+  ) {
+
     const client = await this.clientRepository.findOne({
       where: {id}
     });
     
     if (!client) 
       throw new NotFoundException('Cliente não encontrado')
+
+    if (client.id !== tokenPayload.sub){
+      throw new ForbiddenException('Você não é essa pessoa')
+    }
     return this.clientRepository.remove(client)
   }
 }

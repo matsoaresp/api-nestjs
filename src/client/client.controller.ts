@@ -4,8 +4,9 @@ import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { TokenPayloadDto } from 'src/auth/dto/token-payload.dto';
 import { AuthTokenGuard } from 'src/auth/guard/auth.token.guard';
+import { TokenPayloadParam } from 'src/auth/params/token-payload.param';
 
-@UseGuards(AuthTokenGuard)
+
 @Controller('client')
 export class ClientController {
   constructor(private readonly clientService: ClientService) {}
@@ -17,12 +18,14 @@ export class ClientController {
     return this.clientService.create(createClientDto);
   }
 
+  @UseGuards(AuthTokenGuard)
   @HttpCode(HttpStatus.OK)
   @Get()
   findAll() {
     return this.clientService.findAll();
   }
 
+  @UseGuards(AuthTokenGuard)
   @HttpCode(HttpStatus.OK)
   @Get(':id')
   findOne(
@@ -30,20 +33,22 @@ export class ClientController {
     return this.clientService.findOne(id);
   }
 
+  @UseGuards(AuthTokenGuard)
   @HttpCode(HttpStatus.OK)
   @Patch(':id')
   update(
     @Param('id') id: number,
     @Body() updateClientDto: UpdateClientDto, 
-    tokenPayload:TokenPayloadDto) {
+    @TokenPayloadParam() tokenPayload:TokenPayloadDto) {
     return this.clientService.update(id, updateClientDto, tokenPayload);
   }
 
-
+  @UseGuards(AuthTokenGuard)
   @HttpCode(HttpStatus.OK)
   @Delete(':id')
   remove(
-    @Param('id') id: number) {
-    return this.clientService.remove(id);
+    @Param('id') id: number,
+    @TokenPayloadParam() tokenPayload:TokenPayloadDto) {
+    return this.clientService.remove(id,tokenPayload);
   }
 }

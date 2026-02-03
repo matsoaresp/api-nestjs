@@ -1,15 +1,21 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { ServiceService } from './service.service';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
+import { AuthTokenGuard } from 'src/auth/guard/auth.token.guard';
+import { TokenPayloadParam } from 'src/auth/params/token-payload.param';
+import { TokenPayloadDto } from 'src/auth/dto/token-payload.dto';
 
+@UseGuards(AuthTokenGuard)
 @Controller('service')
 export class ServiceController {
-  constructor(private readonly serviceService: ServiceService) {}
+  constructor(private readonly serviceService: ServiceService) { }
 
   @Post()
-  create(@Body() createServiceDto: CreateServiceDto) {
-    return this.serviceService.create(createServiceDto);
+  create(
+    @Body() createServiceDto: CreateServiceDto,
+    @TokenPayloadParam() tokenPayload: TokenPayloadDto) {
+    return this.serviceService.create(createServiceDto,tokenPayload);
   }
 
   @Get()
@@ -18,17 +24,23 @@ export class ServiceController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number) {
+  findOne(
+    @Param('id') id: number) {
     return this.serviceService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: number, @Body() updateServiceDto: UpdateServiceDto) {
-    return this.serviceService.update(id, updateServiceDto);
+  update(
+    @Param('id') id: number,
+    @Body() updateServiceDto: UpdateServiceDto,
+    @TokenPayloadParam() tokenPayload: TokenPayloadDto) {
+    return this.serviceService.update(id, updateServiceDto,tokenPayload);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: number) {
-    return this.serviceService.remove(id);
+  remove(
+    @Param('id') id: number,
+    @TokenPayloadParam() tokenPayload: TokenPayloadDto) {
+    return this.serviceService.remove(id,tokenPayload);
   }
 }
