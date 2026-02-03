@@ -19,6 +19,7 @@ export class ClientService {
     const clientData = {
       name: createClientDto.name,
       email: createClientDto.email,
+      password: createClientDto.password,
     }
 
     const newClient = await this.clientRepository.create(clientData)
@@ -32,6 +33,7 @@ export class ClientService {
         id: 'asc'
       },
     });
+
     return clients
   }
   async findOne(id: number) {
@@ -52,6 +54,7 @@ export class ClientService {
       id,
       name: updateClientDto?.name,
       email: updateClientDto?.email,
+      password: updateClientDto?.password
     })
 
     if (!client)

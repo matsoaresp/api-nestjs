@@ -13,7 +13,7 @@ export class Service {
     name: string
 
     @Column({type: 'timestamp'})
-    starTime: Date;
+    startTime: Date;
 
     @Column({type: 'timestamp'})
     endTime: Date;
