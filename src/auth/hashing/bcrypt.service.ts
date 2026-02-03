@@ -1,7 +1,7 @@
 import bcrypt from "node_modules/bcryptjs";
-import { HashingServiceProtocol } from "./hashing.service";
+import { HashingService } from "./hashing.service";
 
-export class BcryptService extends HashingServiceProtocol {
+export class BcryptService extends HashingService {
     
 
     async hash(password: string): Promise<string>{
