@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, NotFoundException, UseGuards } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException, UseGuards } from '@nestjs/common';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -37,13 +37,13 @@ export class ServiceService {
       startTime,
       endTime,
       status: createServiceDto.action ?? AppointmentStatus.AGENDAR,
-      agendado: {id: tokenPayload.sub},
+      agendado: { id: tokenPayload.sub },
     });
 
     return this.serviceRepository.save(service);
   }
 
-   async findAll(tokenPayload: TokenPayloadDto) {
+  async findAll(tokenPayload: TokenPayloadDto) {
     const servicos = await this.serviceRepository.find({
       where: {
         id: tokenPayload.sub,
@@ -71,7 +71,8 @@ export class ServiceService {
   ) {
     const servico = await this.serviceRepository.findOne({
       where: { id },
-    })
+      relations: ['agendado', 'cancelado']
+    });
 
     if(!servico)
       throw new NotFoundException('Serviço não encontrado')
@@ -87,30 +88,26 @@ export class ServiceService {
 
     const service = await this.findOne(id);
 
-    if (!service ){
-      throw new NotFoundException ('Serviço não encontrado')
-    } 
-
-    if (service.id !== tokenPayload.sub){
+    if(service.agendado.id !== tokenPayload.sub) {
       throw new ForbiddenException('Esse serviço não é seu')
     }
-    service.status = updateServiceDto.action ?? service.status;
 
-    if(service.status === AppointmentStatus.CANCELAR) {
+    if (updateServiceDto.canceladoId){
+      service.status = AppointmentStatus.CANCELAR
       service.cancelado = {
-        id: updateServiceDto.canceladoId,
-      } as any;
-    } else {
-      service.status = AppointmentStatus.CANCELAR;
+        id: updateServiceDto.canceladoId
+      } as any
+    } else if (updateServiceDto.action){
+      service.status = updateServiceDto.action
     }
     
-    await this.serviceRepository.save(service)
-    return service
+    await this.serviceRepository.save(service);
+    return service;
   }
 
   async remove(
     id: number,
-    tokenPayload:TokenPayloadDto
+    tokenPayload: TokenPayloadDto
   ) {
     const servico = await this.serviceRepository.findOne({
       where: { id },
@@ -120,8 +117,8 @@ export class ServiceService {
       throw new NotFoundException('Serviço não encontrado')
     }
 
-    if (servico.id !== tokenPayload.sub){
-        throw new ForbiddenException ('Esse serviço não é seu')
+    if(servico.id !== tokenPayload.sub) {
+      throw new ForbiddenException('Esse serviço não é seu')
     }
     await this.serviceRepository.remove(servico)
     return servico

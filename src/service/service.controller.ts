@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, ClassSerializerInterceptor } from '@nestjs/common';
 import { ServiceService } from './service.service';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
@@ -29,6 +29,7 @@ export class ServiceController {
     return this.serviceService.findOne(id);
   }
 
+  @UseInterceptors(ClassSerializerInterceptor)
   @Patch(':id')
   update(
     @Param('id') id: number,
