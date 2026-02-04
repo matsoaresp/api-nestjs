@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, UseGuards } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException, UseGuards } from '@nestjs/common';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -24,7 +24,7 @@ export class ServiceService {
     tokenPayload: TokenPayloadDto) {
 
     const client = await this.clientService.findOne(
-      createServiceDto.clientId
+      tokenPayload.sub
     );
 
     const startTime = new Date();
@@ -43,8 +43,11 @@ export class ServiceService {
     return this.serviceRepository.save(service);
   }
 
-  async findAll() {
+   async findAll(tokenPayload: TokenPayloadDto) {
     const servicos = await this.serviceRepository.find({
+      where: {
+        id: tokenPayload.sub,
+      },
       relations: ['agendado', 'cancelado'],
       order: {
         id: 'asc'
@@ -84,7 +87,13 @@ export class ServiceService {
 
     const service = await this.findOne(id);
 
-    
+    if (!service ){
+      throw new NotFoundException ('Serviço não encontrado')
+    } 
+
+    if (service.id !== tokenPayload.sub){
+      throw new ForbiddenException('Esse serviço não é seu')
+    }
     service.status = updateServiceDto.action ?? service.status;
 
     if(service.status === AppointmentStatus.CANCELAR) {
@@ -94,6 +103,7 @@ export class ServiceService {
     } else {
       service.status = AppointmentStatus.CANCELAR;
     }
+    
     await this.serviceRepository.save(service)
     return service
   }
@@ -108,6 +118,10 @@ export class ServiceService {
 
     if(!servico) {
       throw new NotFoundException('Serviço não encontrado')
+    }
+
+    if (servico.id !== tokenPayload.sub){
+        throw new ForbiddenException ('Esse serviço não é seu')
     }
     await this.serviceRepository.remove(servico)
     return servico
