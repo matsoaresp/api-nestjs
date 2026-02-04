@@ -1,4 +1,4 @@
-import { IsBoolean, IsEnum, isNotEmpty, IsNotEmpty, IsNumber, IsPositive, IsString, MinLength } from "class-validator";
+import { IsBoolean, IsEnum, isNotEmpty, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, MinLength } from "class-validator";
 import { AppointmentStatus } from "../enum/appointments.enum";
 
 export class CreateServiceDto {
@@ -11,13 +11,16 @@ export class CreateServiceDto {
     @IsNumber()
     price: number;
 
+    @IsNumber()
+    @IsOptional()
+    clientId?: number
 
-    @IsNotEmpty()
-    clientId: number
-
+    
     @IsEnum(AppointmentStatus)
+    @IsNotEmpty()
     action: AppointmentStatus;
 
+    @IsOptional()
     @IsNumber()
     canceladoId?: number;
 }

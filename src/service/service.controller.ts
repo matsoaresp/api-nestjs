@@ -19,8 +19,8 @@ export class ServiceController {
   }
 
   @Get()
-  findAll() {
-    return this.serviceService.findAll();
+  findAll(@TokenPayloadParam() tokenPayload: TokenPayloadDto) {
+    return this.serviceService.findAll(tokenPayload);
   }
 
   @Get(':id')

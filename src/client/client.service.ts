@@ -94,16 +94,16 @@ export class ClientService {
     tokenPayload: TokenPayloadDto
   ) {
 
-    const client = await this.clientRepository.findOne({
-      where: {id}
-    });
+    const client = await this.findOne(id)
+
+     if (client.id !== tokenPayload.sub){
+      throw new ForbiddenException('Você não é essa pessoa')
+    }
     
     if (!client) 
       throw new NotFoundException('Cliente não encontrado')
 
-    if (client.id !== tokenPayload.sub){
-      throw new ForbiddenException('Você não é essa pessoa')
-    }
+   
     return this.clientRepository.remove(client)
   }
 }
